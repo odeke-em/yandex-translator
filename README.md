@@ -3,13 +3,14 @@ yandex-translator
 
 
 Python клиент к API перевода Яндекса.
-------------------------------------
 
 
 Настройка
 ---------
 Для работы необходим ключ API.
-Получить его можно тут: http://api.yandex.ru/key/form.xml?service=trnsl
+
+Получить его можно тут:
+ http://api.yandex.ru/key/form.xml?service=trnsl
 
 Необходимо создать файл с ключем, вида:
 

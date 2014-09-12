@@ -6,10 +6,10 @@
 http://api.yandex.ru/translate/doc/dg/concepts/About.xml
 """
 import os
+import re
 import urllib.parse
 import urllib.request
 import json
-
 
 # Переменная окружения, указывающая на файл с ключем
 KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
@@ -22,6 +22,7 @@ HTML = 'html'
 
 OK = 200
 
+reSpaceCompile = re.compile('\s', re.UNICODE)
 
 class APIException(Exception):
     """
@@ -102,7 +103,7 @@ class YTranslator(object):
         response = self.__call_api("detect", text=text)
         return response["lang"]
 
-    def __call_api(self, method, **kwargs):
+    def __call_api(self, method, text_collection=[], **kwargs):
         """
         Вызов метода ``method``
     
@@ -110,22 +111,40 @@ class YTranslator(object):
         :return: JSON ответ
         """
         assert self.__API_KEY, "Не считан ключ API"
-
+        
         kwargs['key'] = self.__API_KEY
+        joined_per_line = ''
+       
+        """ 
+        Примітка:текст і text_collection є взаємовиключними
+        следовательно, если text_collections определен текст выскочил
+        """
+        if text_collection:
+            kwargs.pop('text', '')
+            mappedToText = map(lambda e: 'text=%s'%(reSpaceCompile.sub('+', e)), text_collection)
+            joined_per_line = '&'.join(mappedToText)
+
+        data = urllib.parse.urlencode(kwargs).encode('utf-8')
+        if joined_per_line:
+            data += bytes('&' + joined_per_line, encoding='utf-8')
+
         response = urllib.request.urlopen(
-            urllib.parse.urljoin(URL, method),
-            data=urllib.parse.urlencode(kwargs).encode("utf-8"))
+            urllib.parse.urljoin(URL, method), data=data
+        )
 
         response = json.loads(response.read().decode("utf-8"))
         if response.get("code", OK) != OK:
             throw(response["code"])
+
         return response
 
-    def translate(self, *, text, lang, format=PLAIN):
+    def translate(self, *, lang, text='', text_collection=[], format=PLAIN):
         """
         Перевод текста на заданный язык. 
 
         :param str text: Текст, который необходимо перевести
+        :param str text_collection: Примітка:text_collection итерируемый, що містять рядки тексту
+        
         :param str lang: Направление перевода.
             Может задаваться одним из следующих способов:
             * В виде пары кодов языков («с какого»-«на какой»), разделенных дефисом.
@@ -136,10 +155,22 @@ class YTranslator(object):
             Возможны два значения:
             * plain — текст без разметки (значение по умолчанию);
             * html — текст в формате HTML.
+        ** Примітка:текст і text_collection є взаємовиключними
         :return: перевод текста
         """
-        response = self.__call_api("translate", text=text, lang=lang, format=format)
-        return response["text"][0]
+        response = self.__call_api(
+            "translate", text=text, text_collection=text_collection, lang=lang, format=format
+        )
+
+        # Mappings are returned ordered
+        return response["text"]
+
+    def translate_file(self, lang, file_path):
+        self.check_existance_and_permissions(file_path)
+        with open(file_path) as f:
+            results = self.translate(lang=lang, text_collection=f.readlines())
+
+        return results
 
     def get_langs(self, *, ui=None):
         """
@@ -169,6 +200,21 @@ class YTranslator(object):
 
     def init_key_from_path(self, path_to_key):
         self.init_key(self.__read_key(path_to_key))
+
+    def check_existance_and_permissions(self, path_to_check, permissions=os.R_OK):
+        """
+        отметьте нужные разрешения и бросать исключение, если нет такого доступа к файлу
+
+        :param str path_to_check: путь в файловой системе 
+        :param int permissions: или разрешения битов, например: os.R_OK|os.X_OK
+        :return: нет
+        """
+        if not os.path.isfile(path_to_check):
+            raise Exception(
+                "{} должен быть допустимым обычным файлом!".format(path_to_check))
+        
+        elif not os.access(path_to_check, permissions):
+            raise Exception("нет достаточных разрешений на доступ {}!".format(path_to_check))
 
     def __read_key(self, path_to_key=None):
         """
@@ -204,16 +250,17 @@ def parse_args():
     return parser.parse_args()
 
 if __name__ == "__main__":
+    ytrans = YTranslator()
+
     args = parse_args()
     lang, text = args.lang, args.text
+
     if lang == "none":
-        text_lang = detect(text=text[:100])
+        text_lang = ytrans.detect(text=text[:100])
         if text_lang != "ru":
             lang = "ru"
         else:
             lang = "en"
-
-    ytrans = YTranslator()
 
     print("Languages available :\033[94m %s\033[00m"%(ytrans.get_langs()))
     print("Language detected:\033[92m %s\033[00m"%(ytrans.detect(text=text)))

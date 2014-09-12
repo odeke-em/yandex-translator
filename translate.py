@@ -33,13 +33,12 @@ def read_key():
 
     path_to_key = os.environ[KEY_ENVIRON_VARIABLE]
 
-    # Pardon the machine translated Russian exception messages :)
     if not os.path.isfile(path_to_key):
         raise Exception(
-            "{} Должны быть допустимым обычный файл!".format(path_to_key))
+            "{} должен быть допустимым обычным файлом!".format(path_to_key))
         
     elif not os.access(path_to_key, os.R_OK):
-        raise Exception("Вы не читали доступ к пути {}!".format(path_to_key))
+        raise Exception("Нет доступа к файлу {}!".format(path_to_key))
 
     with open(path_to_key, "rt") as f:
         for line in f.readlines():

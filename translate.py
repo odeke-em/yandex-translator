@@ -121,7 +121,6 @@ class YTranslator(object):
             throw(response["code"])
         return response
 
-
     def translate(self, *, text, lang, format=PLAIN):
         """
         Перевод текста на заданный язык. 
@@ -163,13 +162,6 @@ class YTranslator(object):
 
         path_to_key = os.environ[KEY_ENVIRON_VARIABLE]
 
-        if not os.path.isfile(path_to_key):
-            raise Exception(
-                "{} должен быть допустимым обычным файлом!".format(path_to_key))
-        
-        elif not os.access(path_to_key, os.R_OK):
-            raise Exception("Нет доступа к файлу {}!".format(path_to_key))
-
         return path_to_key
 
     def init_key(self, API_KEY):
@@ -184,6 +176,13 @@ class YTranslator(object):
         """
         if not path_to_key: 
             path_to_key = self.__get_environ_key_path()
+
+        if not os.path.isfile(path_to_key):
+            raise Exception(
+                "{} должен быть допустимым обычным файлом!".format(path_to_key))
+        
+        elif not os.access(path_to_key, os.R_OK):
+            raise Exception("Нет доступа к файлу {}!".format(path_to_key))
 
         with open(path_to_key, "rt") as f:
             for line in f.readlines():
@@ -216,5 +215,6 @@ if __name__ == "__main__":
 
     ytrans = YTranslator()
 
+    print("Languages available :\033[94m %s\033[00m"%(ytrans.get_langs()))
     print("Language detected:\033[92m %s\033[00m"%(ytrans.detect(text=text)))
     print("Translated: \033[93m%s\033[00m"%(ytrans.translate(lang=lang, text=text)))

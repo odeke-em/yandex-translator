@@ -10,10 +10,9 @@ def main():
     ytrans = YTranslator()
     ntrans = NumberTranslator()
 
-    # Dirty hack to try out counting from 0 to 1000 in ru.
-    # TODO: Send content in one request
+    # Let's learn to count in Russian till 100
     engL = []
-    for i in range(0, 10):
+    for i in range(100):
         strRepr = ntrans.toWords(i)
         engL.append(strRepr)
 
@@ -21,10 +20,10 @@ def main():
     print(ytrans.translate(lang='ru', text_collection=engL))
 
     # Translate this file to German
-    print(ytrans.translate_file(lang='de', file_path=__file__))
+    print('\n'.join(ytrans.translate_file(lang='de', file_path=__file__)))
 
     # What does it look like in Spanish?
-    print(ytrans.translate_file(lang='es', file_path=__file__))
+    print('\n'.join(ytrans.translate_file(lang='es', file_path=__file__)))
 
 if __name__ == '__main__':
     main()

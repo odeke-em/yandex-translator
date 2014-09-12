@@ -157,12 +157,12 @@ class YTranslator(object):
             * html — текст в формате HTML.
         ** Примітка:текст і text_collection є взаємовиключними
         :return: перевод текста
+
         """
         response = self.__call_api(
             "translate", text=text, text_collection=text_collection, lang=lang, format=format
         )
 
-        # Mappings are returned ordered
         return response["text"]
 
     def translate_file(self, lang, file_path):
@@ -191,9 +191,7 @@ class YTranslator(object):
             "Не установлена переменная окружения "
             "{}".format(KEY_ENVIRON_VARIABLE))
 
-        path_to_key = os.environ[KEY_ENVIRON_VARIABLE]
-
-        return path_to_key
+        return os.environ[KEY_ENVIRON_VARIABLE]
 
     def init_key(self, API_KEY):
         self.__API_KEY = API_KEY
@@ -209,7 +207,7 @@ class YTranslator(object):
         :param int permissions: или разрешения битов, например: os.R_OK|os.X_OK
         :return: нет
         """
-        if not os.path.isfile(path_to_check):
+        if not (path_to_check and os.path.isfile(path_to_check)):
             raise Exception(
                 "{} должен быть допустимым обычным файлом!".format(path_to_check))
         
@@ -223,12 +221,7 @@ class YTranslator(object):
         if not path_to_key: 
             path_to_key = self.__get_environ_key_path()
 
-        if not os.path.isfile(path_to_key):
-            raise Exception(
-                "{} должен быть допустимым обычным файлом!".format(path_to_key))
-        
-        elif not os.access(path_to_key, os.R_OK):
-            raise Exception("Нет доступа к файлу {}!".format(path_to_key))
+        self.check_existance_and_permissions(path_to_key, permissions=os.R_OK)
 
         with open(path_to_key, "rt") as f:
             for line in f.readlines():

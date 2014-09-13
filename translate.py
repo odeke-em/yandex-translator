@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 Неофициальный клиент для translate.yandex.ru
 
@@ -6,10 +6,10 @@
 http://api.yandex.ru/translate/doc/dg/concepts/About.xml
 """
 import os
+import re
 import urllib.parse
 import urllib.request
 import json
-
 
 # Переменная окружения, указывающая на файл с ключем
 KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
@@ -22,40 +22,7 @@ HTML = 'html'
 
 OK = 200
 
-
-def read_key():
-    """
-    Считывает ключ из файла, на который указывает ``KEY_ENVIRON_VARIABLE``
-    """
-    assert KEY_ENVIRON_VARIABLE in os.environ, (
-            "Не установлена переменная окружения "
-            "{}".format(KEY_ENVIRON_VARIABLE))
-
-    path_to_key = os.environ[KEY_ENVIRON_VARIABLE]
-
-    if not os.path.isfile(path_to_key):
-        raise Exception(
-            "{} должен быть допустимым обычным файлом!".format(path_to_key))
-        
-    elif not os.access(path_to_key, os.R_OK):
-        raise Exception("Нет доступа к файлу {}!".format(path_to_key))
-
-    with open(path_to_key, "rt") as f:
-        for line in f.readlines():
-            key, *value = line.strip().replace(" ", "").split("=")
-            if key.lower() == "key":
-                break
-        else:
-            raise Exception("Ключ не найден!")
-
-    if len(value) != 1:
-        raise BadKeyError
-    return value[0]  
-
-
-# Считывание ключа API
-API_KEY = read_key()
-
+reSpaceCompile = re.compile('\s', re.UNICODE)
 
 class APIException(Exception):
     """
@@ -65,7 +32,7 @@ class APIException(Exception):
 
     def __init__(self):
         assert self.message is not None
-        super().__init__(self.message)
+        super(APIException, self).__init__(self.message)
 
 
 class BadKeyError(APIException):
@@ -118,72 +85,155 @@ def throw(code):
     raise exception_map[code]
 
 
-def call_api(method, **kwargs):
-    """
-    Вызов метода ``method``
+class YTranslator(object):
+    def __init__(self, key_path=None, api_key=None):
+        self.__API_KEY = None
+        if api_key:
+            self.init_key(api_key)
+        else:
+            self.init_key_from_path(key_path)
     
-    :param str method: Название метода API
-    :return: JSON ответ
-    """
-    assert API_KEY, "Не считан ключ API"
+    def detect(self, *, text):
+        """
+        Определение языка, на котором написан заданный текст.
 
-    kwargs['key'] = API_KEY
-    response = urllib.request.urlopen(
-            urllib.parse.urljoin(URL, method),
-            data=urllib.parse.urlencode(kwargs).encode("utf-8"))
+        :param str text: Текст для определения языка
+        :return: код языка, на котором написан текст
+        """
+        response = self.__call_api("detect", text=text)
+        return response["lang"]
 
-    response = json.loads(response.read().decode("utf-8"))
-    if response.get("code", OK) != OK:
-        throw(response["code"])
-    return response
+    def __call_api(self, method, text_collection=[], **kwargs):
+        """
+        Вызов метода ``method``
+    
+        :param str method: Название метода API
+        :return: JSON ответ
+        """
+        assert self.__API_KEY, "Не считан ключ API"
+        
+        kwargs['key'] = self.__API_KEY
+        joined_per_line = ''
+       
+        """ 
+        Примітка:текст і text_collection є взаємовиключними
+        следовательно, если text_collections определен текст выскочил
+        """
+        if text_collection:
+            kwargs.pop('text', '')
+            mappedToText = map(lambda e: 'text=%s'%(reSpaceCompile.sub('+', e)), text_collection)
+            joined_per_line = '&'.join(mappedToText)
 
+        data = urllib.parse.urlencode(kwargs).encode('utf-8')
+        if joined_per_line:
+            data += bytes('&' + joined_per_line, encoding='utf-8')
 
-def get_langs(*, ui=None):
-    """
-    Получение списка направлений перевода, поддерживаемых сервисом.
+        response = urllib.request.urlopen(
+            urllib.parse.urljoin(URL, method), data=data
+        )
 
-    :param str ui: Если задан, ответ будет дополнен расшифровкой кодов языков.
-    Названия языков будут выведены на языке, код которого соответствует этому параметру.
-    :return: список направлений перевода
-    """
-    params = dict()
-    if ui is not None:
-        params['ui'] = ui
-    response = call_api('getLangs', **params)
-    return response["dirs"]
+        response = json.loads(response.read().decode("utf-8"))
+        if response.get("code", OK) != OK:
+            throw(response["code"])
 
+        return response
 
-def detect(*, text):
-    """
-    Определение языка, на котором написан заданный текст.
+    def translate(self, *, lang, text='', text_collection=[], format=PLAIN):
+        """
+        Перевод текста на заданный язык. 
 
-    :param str text: Текст для определения языка
-    :return: код языка, на котором написан текст
-    """
-    response = call_api("detect", text=text)
-    return response["lang"]
+        :param str text: Текст, который необходимо перевести
+        :param str text_collection: Примітка:text_collection итерируемый, що містять рядки тексту
+        
+        :param str lang: Направление перевода.
+            Может задаваться одним из следующих способов:
+            * В виде пары кодов языков («с какого»-«на какой»), разделенных дефисом.
+            Например, en-ru обозначает перевод с английского на русский.
+            *В виде кода конечного языка (например ru).
+            В этом случае сервис пытается определить исходный язык автоматически.
+        :param str format: Формат текста.
+            Возможны два значения:
+            * plain — текст без разметки (значение по умолчанию);
+            * html — текст в формате HTML.
+        ** Примітка:текст і text_collection є взаємовиключними
+        :return: перевод текста
 
+        """
+        response = self.__call_api(
+            "translate", text=text, text_collection=text_collection, lang=lang, format=format
+        )
 
-def translate(*, text, lang, format=PLAIN):
-    """
-    Перевод текста на заданный язык. 
+        return response["text"]
 
-    :param str text: Текст, который необходимо перевести
-    :param str lang: Направление перевода.
-        Может задаваться одним из следующих способов:
-        * В виде пары кодов языков («с какого»-«на какой»), разделенных дефисом.
-        Например, en-ru обозначает перевод с английского на русский.
-        *В виде кода конечного языка (например ru).
-        В этом случае сервис пытается определить исходный язык автоматически.
-    :param str format: Формат текста.
-        Возможны два значения:
-        * plain — текст без разметки (значение по умолчанию);
-        * html — текст в формате HTML.
-    :return: перевод текста
-    """
-    response = call_api("translate", text=text, lang=lang, format=format)
-    return response["text"][0]
+    def translate_file(self, lang, file_path):
+        self.check_existance_and_permissions(file_path)
+        with open(file_path) as f:
+            results = self.translate(lang=lang, text_collection=f.readlines())
 
+        return results
+
+    def get_langs(self, *, ui=None):
+        """
+        Получение списка направлений перевода, поддерживаемых сервисом.
+
+        :param str ui: Если задан, ответ будет дополнен расшифровкой кодов языков.
+        Названия языков будут выведены на языке, код которого соответствует этому параметру.
+        :return: список направлений перевода
+        """
+        params = dict()
+        if ui is not None:
+            params['ui'] = ui
+        response = self.__call_api('getLangs', **params)
+        return response["dirs"]
+
+    def __get_environ_key_path(self):
+        assert KEY_ENVIRON_VARIABLE in os.environ, (
+            "Не установлена переменная окружения "
+            "{}".format(KEY_ENVIRON_VARIABLE))
+
+        return os.environ[KEY_ENVIRON_VARIABLE]
+
+    def init_key(self, API_KEY):
+        self.__API_KEY = API_KEY
+
+    def init_key_from_path(self, path_to_key):
+        self.init_key(self.__read_key(path_to_key))
+
+    def check_existance_and_permissions(self, path_to_check, permissions=os.R_OK):
+        """
+        отметьте нужные разрешения и бросать исключение, если нет такого доступа к файлу
+
+        :param str path_to_check: путь в файловой системе 
+        :param int permissions: или разрешения битов, например: os.R_OK|os.X_OK
+        :return: нет
+        """
+        if not (path_to_check and os.path.isfile(path_to_check)):
+            raise Exception(
+                "{} должен быть допустимым обычным файлом!".format(path_to_check))
+        
+        elif not os.access(path_to_check, permissions):
+            raise Exception("нет достаточных разрешений на доступ {}!".format(path_to_check))
+
+    def __read_key(self, path_to_key=None):
+        """
+        Считывает ключ из файла, на который указывает ``KEY_ENVIRON_VARIABLE``
+        """
+        if not path_to_key: 
+            path_to_key = self.__get_environ_key_path()
+
+        self.check_existance_and_permissions(path_to_key, permissions=os.R_OK)
+
+        with open(path_to_key, "rt") as f:
+            for line in f.readlines():
+                key, *value = line.strip().replace(" ", "").split("=")
+                if key.lower() == "key":
+                    break
+            else:
+                raise Exception("Ключ не найден!")
+
+        if len(value) != 1:
+            raise BadKeyError
+        return value[0]  
 
 def parse_args():
     import argparse
@@ -192,14 +242,19 @@ def parse_args():
     parser.add_argument("text", metavar='text', help='Текст, который необходимо перевести')
     return parser.parse_args()
 
-
 if __name__ == "__main__":
+    ytrans = YTranslator()
+
     args = parse_args()
     lang, text = args.lang, args.text
+
     if lang == "none":
-        text_lang = detect(text=text[:100])
+        text_lang = ytrans.detect(text=text[:100])
         if text_lang != "ru":
             lang = "ru"
         else:
             lang = "en"
-    print(translate(lang=lang, text=text))
+
+    print("Languages available :\033[94m %s\033[00m"%(ytrans.get_langs()))
+    print("Language detected:\033[92m %s\033[00m"%(ytrans.detect(text=text)))
+    print("Translated: \033[93m%s\033[00m"%(ytrans.translate(lang=lang, text=text)))

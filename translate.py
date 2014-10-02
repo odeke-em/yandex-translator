@@ -1,3 +1,4 @@
+# coding: utf-8
 #!/usr/bin/env python
 """
 Неофициальный клиент для translate.yandex.ru
@@ -7,9 +8,18 @@ http://api.yandex.ru/translate/doc/dg/concepts/About.xml
 """
 import os
 import re
-import urllib.parse
-import urllib.request
 import json
+
+try:
+    # Py3
+    from urllib.parse import urlencode, urljoin
+    from urllib.request import urlopen
+except ImportError:
+    # Py2
+    from urlparse import urljoin
+    from urllib2 import urlopen
+    from urllib import urlencode
+
 
 # Переменная окружения, указывающая на файл с ключем
 KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
@@ -24,11 +34,12 @@ OK = 200
 
 reSpaceCompile = re.compile('\s', re.UNICODE)
 
+
 class APIException(Exception):
     """
-    Базовый класс исключения для ошибок API
+    Base class for all API Exceptions
     """
-    message = None   # cообщение, передоваемое в исключение
+    message = None
 
     def __init__(self):
         assert self.message is not None
@@ -36,34 +47,34 @@ class APIException(Exception):
 
 
 class BadKeyError(APIException):
-    message = "Неправильные ключ API"
+    message = u"Неправильные ключ API"
 
 
 class KeyBlockedError(APIException):
-    message = "Ключ API заблокирован"
+    message = u"Ключ API заблокирован"
 
 
 class TriesLimitError(APIException):
-    message = "Превышено суточное ограничение на количество запросов"
+    message = u"Превышено суточное ограничение на количество запросов"
 
 
 class TextLimitError(APIException):
-    message = "Превышено суточное ограничение на объем переведенного текста"
+    message = u"Превышено суточное ограничение на объем переведенного текста"
 
 
 class TextLengthLimitError(APIException):
-    message = "Превышен максимально допустимый размер текста"
+    message = u"Превышен максимально допустимый размер текста"
 
 
 class CantTranslateError(APIException):
-    message = "Текст не может быть переведен"
+    message = u"Текст не может быть переведен"
 
 
 class NotSupportedError(APIException):
-    message = "Заданное направление перевода не поддерживается"
+    message = u"Заданное направление перевода не поддерживается"
 
 
-# отображение кодов ошибок на исколючения
+# code -> exception mapping
 exception_map = {
     401: BadKeyError,
     402: KeyBlockedError,
@@ -77,12 +88,37 @@ exception_map = {
 
 def throw(code):
     """
-    Возбуждает исключение, соответствующее коду ошибки
+    Throws exception with code ``code``
 
-    :param int code: Код ошибки
+    :param int code: Error code
     """
     assert code in exception_map
     raise exception_map[code]
+
+
+def check_existance_and_permissions(path_to_check, permissions=os.R_OK):
+    """
+    проверяет нужные разрешения и бросает исключение,
+     если нет доступа к файлу
+
+    :param str path_to_check: путь в файловой системе
+    :param int permissions: права доступа, например: os.R_OK|os.X_OK
+    :return: нет
+    """
+    if not (path_to_check and os.path.isfile(path_to_check)):
+        raise Exception(
+            u"{0} должен быть допустимым обычным файлом!".format(path_to_check))
+
+    elif not os.access(path_to_check, permissions):
+        raise Exception(u"Нет доступа к файлу! {0}!".format(path_to_check))
+
+
+def get_environ_key_path():
+    assert KEY_ENVIRON_VARIABLE in os.environ, (
+        u"Не установлена переменная окружения "
+        u"{0}".format(KEY_ENVIRON_VARIABLE))
+
+    return os.environ[KEY_ENVIRON_VARIABLE]
 
 
 class YTranslator(object):
@@ -93,17 +129,17 @@ class YTranslator(object):
         else:
             self.init_key_from_path(key_path)
     
-    def detect(self, *, text):
+    def detect(self, text):
         """
-        Определение языка, на котором написан заданный текст.
+        Text language detection
 
         :param str text: Текст для определения языка
-        :return: код языка, на котором написан текст
+        :return: text written language code
         """
         response = self.__call_api("detect", text=text)
         return response["lang"]
 
-    def __call_api(self, method, text_collection=[], **kwargs):
+    def __call_api(self, method, text_collection=None, **kwargs):
         """
         Вызов метода ``method``
     
@@ -119,32 +155,32 @@ class YTranslator(object):
         Примітка:текст і text_collection є взаємовиключними
         следовательно, если text_collections определен текст выскочил
         """
+        text_collection = text_collection or []
         if text_collection:
             kwargs.pop('text', '')
-            mappedToText = map(lambda e: 'text=%s'%(reSpaceCompile.sub('+', e)), text_collection)
-            joined_per_line = '&'.join(mappedToText)
+            mapped_to_text = map(
+                lambda e: 'text=%s' % (reSpaceCompile.sub('+', e)),
+                text_collection)
+            joined_per_line = '&'.join(mapped_to_text)
 
-        data = urllib.parse.urlencode(kwargs).encode('utf-8')
+        data = urlencode(kwargs).encode('utf-8')
         if joined_per_line:
             data += bytes('&' + joined_per_line, encoding='utf-8')
 
-        response = urllib.request.urlopen(
-            urllib.parse.urljoin(URL, method), data=data
-        )
-
+        response = urlopen(urljoin(URL, method), data=data)
         response = json.loads(response.read().decode("utf-8"))
         if response.get("code", OK) != OK:
             throw(response["code"])
 
         return response
 
-    def translate(self, *, lang, text='', text_collection=[], format=PLAIN):
+    def translate(self, lang, text='', text_collection=None, format=PLAIN):
         """
         Перевод текста на заданный язык. 
 
         :param str text: Текст, который необходимо перевести
-        :param str text_collection: Примітка:text_collection итерируемый, що містять рядки тексту
-        
+        :param collections.Iterable text_collection:
+         Примітка:text_collection итерируемый, що містять рядки тексту
         :param str lang: Направление перевода.
             Может задаваться одним из следующих способов:
             * В виде пары кодов языков («с какого»-«на какой»), разделенных дефисом.
@@ -159,6 +195,7 @@ class YTranslator(object):
         :return: перевод текста
 
         """
+        text_collection = text_collection or []
         response = self.__call_api(
             "translate", text=text, text_collection=text_collection, lang=lang, format=format
         )
@@ -166,13 +203,12 @@ class YTranslator(object):
         return response["text"]
 
     def translate_file(self, lang, file_path):
-        self.check_existance_and_permissions(file_path)
+        check_existance_and_permissions(file_path)
         with open(file_path) as f:
             results = self.translate(lang=lang, text_collection=f.readlines())
-
         return results
 
-    def get_langs(self, *, ui=None):
+    def get_langs(self, ui=None):
         """
         Получение списка направлений перевода, поддерживаемых сервисом.
 
@@ -186,67 +222,66 @@ class YTranslator(object):
         response = self.__call_api('getLangs', **params)
         return response["dirs"]
 
-    def __get_environ_key_path(self):
-        assert KEY_ENVIRON_VARIABLE in os.environ, (
-            "Не установлена переменная окружения "
-            "{}".format(KEY_ENVIRON_VARIABLE))
-
-        return os.environ[KEY_ENVIRON_VARIABLE]
-
     def init_key(self, API_KEY):
         self.__API_KEY = API_KEY
 
     def init_key_from_path(self, path_to_key):
         self.init_key(self.__read_key(path_to_key))
 
-    def check_existance_and_permissions(self, path_to_check, permissions=os.R_OK):
-        """
-        отметьте нужные разрешения и бросать исключение, если нет такого доступа к файлу
-
-        :param str path_to_check: путь в файловой системе 
-        :param int permissions: или разрешения битов, например: os.R_OK|os.X_OK
-        :return: нет
-        """
-        if not (path_to_check and os.path.isfile(path_to_check)):
-            raise Exception(
-                "{} должен быть допустимым обычным файлом!".format(path_to_check))
-        
-        elif not os.access(path_to_check, permissions):
-            raise Exception("нет достаточных разрешений на доступ {}!".format(path_to_check))
-
     def __read_key(self, path_to_key=None):
         """
         Считывает ключ из файла, на который указывает ``KEY_ENVIRON_VARIABLE``
         """
         if not path_to_key: 
-            path_to_key = self.__get_environ_key_path()
+            path_to_key = get_environ_key_path()
 
-        self.check_existance_and_permissions(path_to_key, permissions=os.R_OK)
+        check_existance_and_permissions(path_to_key, permissions=os.R_OK)
 
+        value = None
         with open(path_to_key, "rt") as f:
             for line in f.readlines():
-                key, *value = line.strip().replace(" ", "").split("=")
-                if key.lower() == "key":
-                    break
+                line = line.strip().replace(" ", "").rsplit("=", 1)
+                if len(line) == 2:
+                    key, value = line
+                    if key.lower() == "key":
+                        break
             else:
                 raise Exception("Ключ не найден!")
+        return value
 
-        if len(value) != 1:
-            raise BadKeyError
-        return value[0]  
-
-def parse_args():
-    import argparse
-    parser = argparse.ArgumentParser(description="Yandex переводчик")
-    parser.add_argument("--lang", dest='lang', default='none', help='Направление перевода')
-    parser.add_argument("text", metavar='text', help='Текст, который необходимо перевести')
-    return parser.parse_args()
 
 if __name__ == "__main__":
-    ytrans = YTranslator()
+    def is_valid_file(parser, file_path):
+        try:
+            check_existance_and_permissions(file_path)
+        except Exception as e:
+            parser.error(str(e).encode('utf-8'))
+        return file_path
 
-    args = parse_args()
-    lang, text = args.lang, args.text
+    def get_args_parser():
+        import argparse
+        parser = argparse.ArgumentParser(description="Yandex translator")
+        parser.add_argument("--lang", '-l', dest='lang', default='none', help='Translation direction')
+        parser.add_argument("--available-languages", "-a", dest='available', action='store_true',
+                            help="Show available languages")
+        parser.add_argument("text", nargs='*', metavar='text', help='Text for translation')
+        return parser
+
+    ytrans = YTranslator()
+    parser = get_args_parser()
+    args = parser.parse_args()
+    show_available_languages = args.available
+    if show_available_languages:
+        print("Languages available : {0}".format(", ".join(ytrans.get_langs())))
+        exit()
+
+    lang = args.lang
+    text = " ".join(args.text)
+
+    if not text:
+        print("Text is required!")
+        parser.print_help()
+        exit()
 
     if lang == "none":
         text_lang = ytrans.detect(text=text[:100])
@@ -255,6 +290,4 @@ if __name__ == "__main__":
         else:
             lang = "en"
 
-    print("Languages available :\033[94m %s\033[00m"%(ytrans.get_langs()))
-    print("Language detected:\033[92m %s\033[00m"%(ytrans.detect(text=text)))
-    print("Translated: \033[93m%s\033[00m"%(ytrans.translate(lang=lang, text=text)))
+    print(" ".join(ytrans.translate(lang=lang, text=text)))

@@ -146,15 +146,11 @@ class YTranslator(object):
         :param str method: Название метода API
         :return: JSON ответ
         """
-        assert self.__API_KEY, "Не считан ключ API"
+        assert self.__API_KEY, u"Не считан ключ API"
         
         kwargs['key'] = self.__API_KEY
         joined_per_line = ''
        
-        """ 
-        Примітка:текст і text_collection є взаємовиключними
-        следовательно, если text_collections определен текст выскочил
-        """
         text_collection = text_collection or []
         if text_collection:
             kwargs.pop('text', '')
@@ -246,7 +242,7 @@ class YTranslator(object):
                     if key.lower() == "key":
                         break
             else:
-                raise Exception("Ключ не найден!")
+                raise Exception(u"Ключ не найден!")
         return value
 
 

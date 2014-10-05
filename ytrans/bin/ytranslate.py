@@ -24,7 +24,8 @@ def main():
     args = parser.parse_args()
     show_available_languages = args.available
     if show_available_languages:
-        print("Languages available : {0}".format(", ".join(translator.get_langs())))
+        print("Languages available : {0}".format(
+            ", ".join(translator.get_translation_directions())))
         exit()
 
     lang = args.lang

@@ -34,14 +34,6 @@ def check_existance_and_permissions(path_to_check, permissions=os.R_OK):
         raise IOError(u"Access denied! {0}!".format(path_to_check))
 
 
-def is_valid_file(parser, file_path):
-    try:
-        check_existance_and_permissions(file_path)
-    except IOError as e:
-        parser.error(str(e).encode('utf-8'))
-    return file_path
-
-
 def request(method, data=None):
     from ytrans.settings import URL
     return urlopen(urljoin(URL, method), data=data)

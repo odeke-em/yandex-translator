@@ -21,3 +21,8 @@ def get_suites():
 
 def run_tests():
     return unittest.TestSuite(get_suites())
+
+
+if __name__ == '__main__':
+    suite = unittest.TestSuite(get_suites())
+    unittest.TextTestRunner().run(suite)

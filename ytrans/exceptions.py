@@ -1,6 +1,11 @@
 # coding: utf-8
 
 
+class KeyNotFound(Exception):
+    def __init__(self):
+        super(KeyNotFound, self).__init__(u"API Key not found!")
+
+
 class APIException(Exception):
     """
     Base class for all API Exceptions

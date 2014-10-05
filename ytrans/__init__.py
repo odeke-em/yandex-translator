@@ -1,16 +1,15 @@
 # coding: utf-8
 """
-Неофициальный клиент для translate.yandex.ru
+Unoficial client to translate.yandex.com
 
-Документация к API:
-http://api.yandex.ru/translate/doc/dg/concepts/About.xml
+API Documentation:
+http://api.yandex.com/translate/doc/dg/concepts/About.xml
 """
-import os
 import re
 import json
 import collections
 
-from ytrans.exceptions import *
+from ytrans.exceptions import APIException, throw
 from ytrans import settings
 from ytrans import utils
 
@@ -62,7 +61,8 @@ class YTranslator(object):
             return []
 
         lower_lang_str = lang_str
-        return self.__valid_langs_map[lower_lang_str][:] # No tampering with internal data
+         # No tampering with internal data
+        return self.__valid_langs_map[lower_lang_str][:]
 
     def get_supported_primaries(self):
         if not self.__valid_langs_map:
@@ -84,7 +84,7 @@ class YTranslator(object):
         """
         Text language detection
 
-        :param str text: Текст для определения языка
+        :param str text: Text for language detection
         :return: text written language code
         """
         response = self.__call_api("detect", text=text)
@@ -92,12 +92,12 @@ class YTranslator(object):
 
     def __call_api(self, method, text_collection=None, **kwargs):
         """
-        Вызов метода ``method``
+        API method call
 
-        :param str method: Название метода API
-        :return: JSON ответ
+        :param str method: API method name
+        :return: JSON response
         """
-        assert self.__API_KEY, u"Не считан ключ API"
+        assert self.__API_KEY, u"API key wasn't read"
 
         kwargs['key'] = self.__API_KEY
         joined_per_line = ''
@@ -123,23 +123,23 @@ class YTranslator(object):
 
     def translate(self, lang, text='', text_collection=None, format=PLAIN):
         """
-        Перевод текста на заданный язык.
+        Translates the text.
 
-        :param str text: Текст, который необходимо перевести
+        :param str text: The text to be translated.
         :param collections.Iterable text_collection:
-         Примітка:text_collection итерируемый, що містять рядки тексту
-        :param str lang: Направление перевода.
-            Может задаваться одним из следующих способов:
-            * В виде пары кодов языков («с какого»-«на какой»), разделенных дефисом.
-            Например, en-ru обозначает перевод с английского на русский.
-            *В виде кода конечного языка (например ru).
-            В этом случае сервис пытается определить исходный язык автоматически.
-        :param str format: Формат текста.
-            Возможны два значения:
-            * plain — текст без разметки (значение по умолчанию);
-            * html — текст в формате HTML.
-        ** Примітка:текст і text_collection є взаємовиключними
-        :return: перевод текста
+         collection containing lines of the text
+        :param str lang: Translation direction (for example, "en-ru" or "ru").
+         Format:
+            * A pair of language codes separated by a dash.
+            For example, "en-ru" specifies to translate from English to Russian.
+            *Single language code. For example, "ru" specifies to translate to Russian.
+            In this case, the language of the original text is detected automatically.
+        :param str format: Text format.
+            Possible values
+            * plain - Text without markup (default value).
+            * html - Text in HTML format.
+        ** note: you should provide only one of them: text or text_collection
+        :return: Translated text
 
         """
         text_collection = text_collection or []
@@ -156,11 +156,12 @@ class YTranslator(object):
 
     def get_langs(self, ui=None):
         """
-        Получение списка направлений перевода, поддерживаемых сервисом.
+        Returns a list of translation directions supported by the service.
 
-        :param str ui: Если задан, ответ будет дополнен расшифровкой кодов языков.
-        Названия языков будут выведены на языке, код которого соответствует этому параметру.
-        :return: список направлений перевода
+        :param str ui: If set, the service's response will contain a
+         list of language codes and corresponding names of languages.
+        :return: list of translation directions
+        :rtype: list
         """
         params = dict()
         if ui is not None:

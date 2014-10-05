@@ -12,43 +12,46 @@ class APIException(Exception):
         super(APIException, self).__init__(self.message)
 
 
-class BadKeyError(APIException):
-    message = u"Неправильные ключ API"
+class InvalidKeyError(APIException):
+    message = u"Invalid API key."
 
 
 class KeyBlockedError(APIException):
-    message = u"Ключ API заблокирован"
+    message = u"This API key has been blocked."
 
 
-class TriesLimitError(APIException):
-    message = u"Превышено суточное ограничение на количество запросов"
+class DailyReqLimitExceededError(APIException):
+    message = (u"You have reached the daily limit"
+               u" for requests (including calls of the translate method).")
 
 
-class TextLimitError(APIException):
-    message = u"Превышено суточное ограничение на объем переведенного текста"
+class DailyCharLimitExceededError(APIException):
+    message = (u"You have reached the daily limit for the "
+               u"volume of translated text (including calls"
+               u" of the translate method).")
 
 
-class TextLengthLimitError(APIException):
-    message = u"Превышен максимально допустимый размер текста"
+class TextTooLongError(APIException):
+    message = u"The text size exceeds the maximum."
 
 
-class CantTranslateError(APIException):
-    message = u"Текст не может быть переведен"
+class UnprocessableTextError(APIException):
+    message = u"The text could not be translated. "
 
 
-class NotSupportedError(APIException):
-    message = u"Заданное направление перевода не поддерживается"
+class LangNotSupportedError(APIException):
+    message = u"The specified translation direction is not supported."
 
 
 # code -> exception mapping
 exception_map = {
-    401: BadKeyError,
+    401: InvalidKeyError,
     402: KeyBlockedError,
-    403: TriesLimitError,
-    404: TextLimitError,
-    413: TextLengthLimitError,
-    422: CantTranslateError,
-    501: NotSupportedError
+    403: DailyReqLimitExceededError,
+    404: DailyCharLimitExceededError,
+    413: TextTooLongError,
+    422: UnprocessableTextError,
+    501: LangNotSupportedError
 }
 
 

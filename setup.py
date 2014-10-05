@@ -9,7 +9,7 @@ setup(
     version='0.1',
     packages=['ytrans'],
     url='https://github.com/rkashapov/yandex-translator',
-    license='',
+    license='MIT License',
     author='Emmanuel Odeke, Rustam Kashapov',
     author_email='hardtechnik91@gmail.com',
     description='Unoficial client for yandex translator',

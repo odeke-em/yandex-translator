@@ -43,12 +43,12 @@ def getWordDescription(number, wordString=""):
   if (number < 100):
     remainingDig = number % 10
     if not remainingDig:
-      wordString += tenMultiples.get(number, INVALID_KEY)
+      wordString += ' ' + tenMultiples.get(number, INVALID_KEY)
       return wordString
     else:
       sigDig = number // 10
       wordString += tenMultiples.get(sigDig*10, INVALID_KEY)
-      return getWordDescription(number % 10, wordString)
+      return getWordDescription(number % 10, wordString + ' ')
 
   if (number < MILLION):
     if (number < THOUSAND):
@@ -98,7 +98,7 @@ class NumberTranslator:
  
 def main():
     nTrans = NumberTranslator()
-    for i in range(1000):
+    for i in range(900000, 990000):
         print(nTrans.toWords(i))
     # print(getWordDescription(999999999999, ''))
 

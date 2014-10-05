@@ -1,7 +1,7 @@
 yandex-translator
 =================
 
-Unoficial client to **[Yandex translator API](http://translate.yandex.ru/)
+Unoficial client to [Yandex translator API](http://translate.yandex.ru/)
 
 Installation
 ------------
@@ -25,7 +25,9 @@ Usage
 Package provides cli tool and interactive translator.
 
 *Cli tool usage:
-    ytranslate.py -h
+
+``ytranslate.py -h``
 
 *Interactive translator:
-    ytrans-interactive.py
+
+``ytrans-interactive.py``

@@ -6,12 +6,16 @@ Unofficial client to [Yandex translator API](http://translate.yandex.ru/)
 
 Installation
 ------------
-* Note it runs on python versions from 2.7 to 3.X:
+* Note: it runs on python versions from 2.7 to 3.X:
   
   ``python setup.py install`` # To use the default variable python
+
   OR
+
   ``python2.7 setup.py install`` # For a Python2.7 install
+
   OR
+
    ``python3 setup.py install`` # For a Python3 install
 
 Settings

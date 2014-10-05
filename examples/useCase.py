@@ -4,7 +4,8 @@ import sys
 sys.path.append('..')
 
 from numberRecon import NumberTranslator
-from translate import YTranslator
+from ytrans import YTranslator
+
 
 def main():
     ytrans = YTranslator()

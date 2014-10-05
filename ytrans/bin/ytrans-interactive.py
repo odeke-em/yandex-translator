@@ -3,9 +3,10 @@
 
 import sys
 
-from translate import YTranslator
+from ytrans import YTranslator
 
 token_trim = lambda token: token.rstrip(" ").lstrip(" ").strip("\n")
+
 
 def do_show_menu(aux_message=''):
     sys.stdout.write("""
@@ -19,11 +20,15 @@ def do_show_menu(aux_message=''):
         q   -- Exit the program
     \n"""%(aux_message))
 
+
 def do_lang_listing(ytrans):
     sys.stdout.write("\n".join(ytrans.get_supported_primaries()))
 
+
 def do_supported_translations_from_lang(ytrans, lang):
-    text = prompt(pre_text="Primary language, leave blank to use '%s"%(lang)).strip('\n')
+    text = prompt(
+        pre_text="Primary language, leave blank to use '%s" % lang).strip('\n')
+
     if text:
         lang = text
 
@@ -33,14 +38,16 @@ def do_supported_translations_from_lang(ytrans, lang):
     else:
         msg = "\n".join(results)
     sys.stdout.write(msg)
-             
+
+
 def do_detect_lang(ytrans):
     text = prompt(pre_text='Enter text to detect')
     sys.stdout.write(ytrans.detect(text.strip('\n')))
 
+
 def set_lang(ytrans, current_lang):
     lang_in = prompt(
-              "\n[Current: %s. Enter language code eg ru:$> "%(current_lang))
+              "\n[Current: %s. Enter language code eg ru:$> " % current_lang)
     if lang_in:
         current_lang = token_trim(lang_in)
 
@@ -49,6 +56,7 @@ def set_lang(ytrans, current_lang):
         return None
 
     return current_lang
+
 
 def do_translate(ytrans, lang, lines):
     tokens = [token_trim(token) for token in lines if token]
@@ -60,16 +68,20 @@ def do_translate(ytrans, lang, lines):
             sys.stdout.write("%s <=> %s\n"%(tokens[i], equiv))
             sys.stdout.write("\n")
 
+
 def do_translation(ytrans, dest_lang):
     sys.stdout.write("* Hit Ctrl-D to process *\nText separated by 'Enter'\n$> ")
     do_translate(ytrans, dest_lang, sys.stdin.read().split('\n'))
 
+
 def do_report_invalid_opt(opt_str):
     sys.stderr.write("Invalid option: '%s'\n"%(opt_str))
+
 
 def prompt(ps='$>', pre_text=''):
     sys.stdout.write('%s %s '%(pre_text, ps)) and sys.stdout.flush()
     return sys.stdin.readline()
+
 
 def main():
     ytrans = YTranslator()

@@ -65,6 +65,8 @@ def main():
                 sys.stdout.write("Language set to '%s'\n"%(lang))
             elif l_opt_ch == 't':
                 do_translation(ytrans, lang)
+            elif l_opt_ch == 'm':
+                continue
             else:
                 do_report_invalid_opt(opt_str)
 

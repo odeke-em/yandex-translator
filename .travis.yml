@@ -11,4 +11,5 @@ script:
    - coverage run --source ytrans setup.py test
 
 after_success:
-  coveralls
+   coveralls
+

@@ -1,4 +1,4 @@
-yandex-translator [![Build Status](https://travis-ci.org/rkashapov/yandex-translator.svg?branch=master)](https://travis-ci.org/rkashapov/yandex-translator)
+yandex-translator [![Build Status](https://travis-ci.org/rkashapov/yandex-translator.svg?branch=master)](https://travis-ci.org/rkashapov/yandex-translator)[![Coverage Status](https://coveralls.io/repos/rkashapov/yandex-translator/badge.png?branch=master)](https://coveralls.io/r/rkashapov/yandex-translator?branch=master)
 =================
 
 Unofficial client to [Yandex translator API](http://translate.yandex.ru/)

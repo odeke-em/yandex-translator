@@ -1,4 +1,5 @@
-from distutils.core import setup
+from setuptools import setup
+
 
 with open('README.md') as f:
     readme = f.read()
@@ -14,6 +15,7 @@ setup(
     author_email='hardtechnik91@gmail.com',
     description='Unoficial client for yandex translator',
     long_description=readme,
+    test_suite='run_tests.run_tests',
     zip_safe=False,
     scripts=[
         'ytrans/bin/ytranslate.py',

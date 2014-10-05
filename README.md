@@ -1,33 +1,44 @@
 yandex-translator
 =================
 
-Unoficial client to [Yandex translator API](http://translate.yandex.ru/)
+Unofficial client to [Yandex translator API](http://translate.yandex.ru/)
 
 Installation
 ------------
-python setup.py install
+* Note it runs on python versions from 2.7 to 3.X:
+  
+  ``python setup.py install`` # To use the default variable python
+  OR
+  ``python2.7 setup.py install`` # For a Python2.7 install
+  OR
+   ``python3 setup.py install`` # For a Python3 install
 
 Settings
 ---------
-To use this package you need Yandex translation API key.
++ To use this package, you need access to the Yandex translation service via an API key.
 
-You can get is here:
- http://api.yandex.ru/key/form.xml?service=trnsl
+  * You can get your key here:
 
-You have to create file with key like:
+   ``http://api.yandex.ru/key/form.xml?service=trnsl``
 
-``key=the key you got``
++ With your API key, create a file and in it set your API key in this format:
 
-and set environment variable YANDEX_TRANSLATOR_KEY, that contains path to this file.
+  ``key=<API_KEY>``
+
++ To finish off, set the environment variable YANDEX_TRANSLATOR_KEY,
+
+  that contains the path to this file. Do this in your shell, .bash_profile or .bash_rc file:
+
+   ``export YANDEX_TRANSLATOR_KEY=path_to_key``
 
 Usage
 -----
-Package provides cli tool and interactive translator.
+This package provides a cli tool as well as an interactive translator.
 
-*Cli tool usage:
+* Cli tool usage:
 
-``ytranslate.py -h``
+  ``ytranslate.py -h``
 
-*Interactive translator:
+* Interactive translator:
 
-``ytrans-interactive.py``
+  ``ytrans-interactive.py``

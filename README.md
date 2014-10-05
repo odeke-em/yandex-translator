@@ -8,7 +8,7 @@ Installation
 ------------
 * Note: it runs on python versions from 2.7 to 3.X:
   
-  ``python setup.py install`` # To use the default variable python
+  ``python setup.py install`` # To use the default installation
 
   OR
 
@@ -22,9 +22,8 @@ Settings
 ---------
 + To use this package, you need access to the Yandex translation service via an API key.
 
-  * You can get your key here:
+  * You can get your key here: [GET API Key](http://api.yandex.ru/key/form.xml?service=trnsl)
 
-   ``http://api.yandex.ru/key/form.xml?service=trnsl``
 
 + With your API key, create a file and in it set your API key in this format:
 

@@ -20,7 +20,7 @@ class YtransTest(unittest.TestCase):
 
     def test_ytrans_detect(self):
         self.assertEqual('en', self.translator.detect("Hello, Word!"))
-        self.assertEqual('ru', self.translator.detect(u"Привет, Мир!"))
+        self.assertEqual('ru', self.translator.detect("Привет, Мир!"))
 
     def test_is_valid_lang(self):
         self.assertFalse(self.translator.is_valid_lang('none'))
@@ -31,8 +31,8 @@ class YtransTest(unittest.TestCase):
         self.assertIn('en', self.translator.get_supported_translations('ru'))
 
     def test_translate_plain(self):
-        self.assertEqual("Hello World", self.translator.translate("en", u"Привет Мир"))
-        self.assertEqual(["Hi", "World"], self.translator.translate("en", text_collection=[u"Привет", u"Мир"]))
+        self.assertEqual("Hello World", self.translator.translate("en", "Привет Мир"))
+        self.assertEqual(["Hi", "World"], self.translator.translate("en", text_collection=["Привет", "Мир"]))
 
         self.assertRaises(AssertionError, self.translator.translate, "ru", text=u"One", text_collection=["Two"])
 

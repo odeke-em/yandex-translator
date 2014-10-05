@@ -26,7 +26,7 @@ class TestCli(unittest.TestCase):
         with os.popen('ytranslate.py Hello') as result:
             result = result.read()
 
-        self.assertEqual(u"Привет", result.strip())
+        self.assertEqual("Привет", result.strip())
         with os.popen(u'ytranslate.py Привет') as result:
             result = result.read()
         self.assertEqual("Hi", result.strip())

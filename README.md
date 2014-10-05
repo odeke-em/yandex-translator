@@ -1,32 +1,31 @@
 yandex-translator
 =================
 
+Unoficial client to **[Yandex translator API](http://translate.yandex.ru/)
 
-Python клиент к API перевода Яндекса.
+Installation
+------------
+python setup.py install
 
-
-Настройка
+Settings
 ---------
-Для работы необходим ключ API.
+To use this package you need Yandex translation API key.
 
-Получить его можно тут:
+You can get is here:
  http://api.yandex.ru/key/form.xml?service=trnsl
 
-Необходимо создать файл с ключем, вида:
+You have to create file with key like:
 
-``key=Полученный ключ``
+``key=the key you got``
 
-и установить переменную окружения YANDEX_TRANSLATOR_KEY, указывающую на этот файл.
+and set environment variable YANDEX_TRANSLATOR_KEY, that contains path to this file.
 
+Usage
+-----
+Package provides cli tool and interactive translator.
 
-Использование
--------------
-Скрипт написан для  > = 2.7 , так поддерживает Python2.7 , Python3.X
+*Cli tool usage:
+    ytranslate.py -h
 
-Для получения справки по использованию смотри
-``python translate.py -h``
-
-
-Интерактивная Использование:
--------------
-`python interactive.py`
+*Interactive translator:
+    ytrans-interactive.py

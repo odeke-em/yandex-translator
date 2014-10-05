@@ -10,11 +10,12 @@ import json
 import collections
 
 from ytrans.exceptions import APIException, throw
-from ytrans import settings
+from ytrans.settings import KEY_ENVIRON_VARIABLE, read_key
 from ytrans import utils
 
 
-__all__ = ["YTranslator", "APIException"]
+__all__ = ["YTranslator", "APIException", "PLAIN", "HTML",
+           "read_key", "KEY_ENVIRON_VARIABLE"]
 
 
 PLAIN = 'plain'
@@ -26,13 +27,8 @@ reSpaceCompile = re.compile('\s', re.UNICODE)
 
 
 class YTranslator(object):
-    def __init__(self, key_path=None, api_key=None):
-        self.__API_KEY = None
-        if api_key:
-            self.init_key(api_key)
-        else:
-            self.init_key_from_path(key_path)
-
+    def __init__(self, api_key):
+        self.__API_KEY = api_key
         self.__invalid_langs_map = {}
         self.__valid_langs_map = collections.defaultdict(list)
 
@@ -142,11 +138,19 @@ class YTranslator(object):
         :return: Translated text
 
         """
+        assert not (text and text_collection),\
+            "both, text and text_collection is not supported!"
+
+        return_list = text_collection is not None
         text_collection = text_collection or []
         response = self.__call_api("translate", text=text,
                                    text_collection=text_collection, lang=lang, format=format)
+        result = response["text"]
 
-        return response["text"]
+        if not return_list:
+            return u" ".join(result)
+
+        return result
 
     def translate_file(self, lang, file_path):
         utils.check_existance_and_permissions(file_path)
@@ -168,9 +172,3 @@ class YTranslator(object):
             params['ui'] = ui
         response = self.__call_api('getLangs', **params)
         return response["dirs"]
-
-    def init_key(self, API_KEY):
-        self.__API_KEY = API_KEY
-
-    def init_key_from_path(self, path_to_key):
-        self.init_key(settings.read_key(path_to_key))

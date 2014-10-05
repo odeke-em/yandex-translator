@@ -28,10 +28,10 @@ def bytes(value):
 def check_existance_and_permissions(path_to_check, permissions=os.R_OK):
     if not (path_to_check and os.path.isfile(path_to_check)):
         raise IOError(
-            u"{0} должен быть допустимым обычным файлом!".format(path_to_check))
+            u"{0} must be regular file!".format(path_to_check))
 
     elif not os.access(path_to_check, permissions):
-        raise IOError(u"Нет доступа к файлу! {0}!".format(path_to_check))
+        raise IOError(u"Access denied! {0}!".format(path_to_check))
 
 
 def is_valid_file(parser, file_path):

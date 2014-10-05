@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 # coding: utf-8
 from ytrans import YTranslator
+from ytrans import read_key
 
 
 def get_args_parser():
@@ -16,7 +18,8 @@ def get_args_parser():
 
 
 def main():
-    translator = YTranslator()
+    key = read_key()
+    translator = YTranslator(key)
     parser = get_args_parser()
     args = parser.parse_args()
     show_available_languages = args.available
@@ -39,7 +42,7 @@ def main():
         else:
             lang = "en"
 
-    print(" ".join(translator.translate(lang=lang, text=text)))
+    print(translator.translate(lang=lang, text=text))
 
 
 if __name__ == '__main__':

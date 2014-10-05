@@ -3,7 +3,7 @@
 
 import sys
 
-from ytrans import YTranslator
+from ytrans import YTranslator, read_key
 
 token_trim = lambda token: token.rstrip(" ").lstrip(" ").strip("\n")
 
@@ -79,12 +79,13 @@ def do_report_invalid_opt(opt_str):
 
 
 def prompt(ps='$>', pre_text=''):
-    sys.stdout.write('%s %s '%(pre_text, ps)) and sys.stdout.flush()
+    sys.stdout.write('%s %s ' % (pre_text, ps)) and sys.stdout.flush()
     return sys.stdin.readline()
 
 
 def main():
-    ytrans = YTranslator()
+    api_key = read_key()
+    ytrans = YTranslator(api_key)
 
     lang = 'ru'
     while True:

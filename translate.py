@@ -9,6 +9,7 @@ http://api.yandex.ru/translate/doc/dg/concepts/About.xml
 import os
 import re
 import json
+import sys
 
 try:
     # Py3
@@ -20,6 +21,11 @@ except ImportError:
     from urllib2 import urlopen
     from urllib import urlencode
 
+py_version = sys.hexversion//(1<<24)
+if py_version >= 3:
+    bytefy_kwargs = {'encoding': 'utf-8'}
+else:
+    bytefy_kwargs = {}
 
 # Переменная окружения, указывающая на файл с ключем
 KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
@@ -161,7 +167,7 @@ class YTranslator(object):
 
         data = urlencode(kwargs).encode('utf-8')
         if joined_per_line:
-            data += bytes('&' + joined_per_line, encoding='utf-8')
+            data += bytes('&' + joined_per_line, **bytefy_kwargs)
 
         response = urlopen(urljoin(URL, method), data=data)
         response = json.loads(response.read().decode("utf-8"))
@@ -192,9 +198,8 @@ class YTranslator(object):
 
         """
         text_collection = text_collection or []
-        response = self.__call_api(
-            "translate", text=text, text_collection=text_collection, lang=lang, format=format
-        )
+        response = self.__call_api("translate", text=text,
+                      text_collection=text_collection, lang=lang, format=format)
 
         return response["text"]
 
@@ -245,7 +250,6 @@ class YTranslator(object):
                 raise Exception(u"Ключ не найден!")
         return value
 
-
 if __name__ == "__main__":
     def is_valid_file(parser, file_path):
         try:
@@ -257,9 +261,11 @@ if __name__ == "__main__":
     def get_args_parser():
         import argparse
         parser = argparse.ArgumentParser(description="Yandex translator")
-        parser.add_argument("--lang", '-l', dest='lang', default='none', help='Translation direction')
-        parser.add_argument("--available-languages", "-a", dest='available', action='store_true',
-                            help="Show available languages")
+        parser.add_argument(
+              "--lang", '-l', dest='lang', default='none', help='Translation direction')
+        parser.add_argument("--available-languages", "-a", dest='available',
+                                 action='store_true', help="Show available languages")
+
         parser.add_argument("text", nargs='*', metavar='text', help='Text for translation')
         return parser
 

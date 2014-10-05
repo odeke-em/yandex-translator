@@ -1,7 +1,8 @@
-yandex-translator
+yandex-translator [![Build Status](https://travis-ci.org/rkashapov/yandex-translator.svg?branch=master)](https://travis-ci.org/rkashapov/yandex-translator)
 =================
 
 Unofficial client to [Yandex translator API](http://translate.yandex.ru/)
+
 
 Installation
 ------------

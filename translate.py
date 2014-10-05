@@ -8,8 +8,9 @@ http://api.yandex.ru/translate/doc/dg/concepts/About.xml
 """
 import os
 import re
-import json
 import sys
+import json
+import collections
 
 try:
     # Py3
@@ -134,6 +135,53 @@ class YTranslator(object):
             self.init_key(api_key)
         else:
             self.init_key_from_path(key_path)
+
+        self.__invalid_langs_map = {}
+        self.__valid_langs_map = collections.defaultdict(lambda: [])
+
+    def is_valid_lang(self, lang_str):
+        if not isinstance(lang_str, str):
+            return False
+
+        lang_str = lang_str.lower()
+
+        if lang_str in self.__invalid_langs_map:
+            return False
+
+        if lang_str in self.__valid_langs_map: # Cache hit
+            return True
+
+        # Refresh, since after all this could be a compulsory miss
+        self.__valid_langs_map = self.__get_supported_langs_map()
+        if lang_str not in self.__valid_langs_map: # Black list it
+            self.__invalid_langs_map[lang_str] = True
+            return False
+
+        return True
+
+    def get_supported_translations(self, lang_str):
+        if not self.is_valid_lang(lang_str):
+            return []
+
+        lower_lang_str = lang_str
+        return self.__valid_langs_map[lower_lang_str][:] # No tampering with internal data
+
+    def get_supported_primaries(self):
+        if not self.__valid_langs_map:
+            self.__valid_langs_map = self.__get_supported_langs_map()
+
+        return list(self.__valid_langs_map.keys())
+   
+    def __get_supported_langs_map(self, ui=None):
+        lang_list = self.get_langs(ui=ui)
+
+        lang_map = collections.defaultdict(lambda: [])
+
+        for from_to_str in lang_list:
+            primary, rest = from_to_str.split('-') 
+            lang_map[primary].append(rest)
+
+        return lang_map
     
     def detect(self, text):
         """

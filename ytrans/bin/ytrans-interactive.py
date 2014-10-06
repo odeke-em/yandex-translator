@@ -34,10 +34,9 @@ def do_supported_translations_from_lang(ytrans, lang):
 
     results = ytrans.get_supported_translations(lang)
     if not results:
-        msg = ["No translations supported for %s" % lang]
+        console.write_line("No translations supported for %s" % lang)
     else:
-        msg = "\n".join(results)
-    console.write(msg)
+        console.write_lines(results)
 
 
 def do_detect_lang(ytrans):

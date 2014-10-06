@@ -1,7 +1,7 @@
 yandex-translator [![Build Status](https://travis-ci.org/rkashapov/yandex-translator.svg?branch=master)](https://travis-ci.org/rkashapov/yandex-translator)[![Coverage Status](https://coveralls.io/repos/rkashapov/yandex-translator/badge.png?branch=master)](https://coveralls.io/r/rkashapov/yandex-translator?branch=master)
 =================
 
-Unofficial client to [Yandex translator API](http://translate.yandex.ru/)
+Unofficial client to [Yandex translator API](http://translate.yandex.com/)
 
 
 Installation
@@ -22,7 +22,7 @@ Settings
 ---------
 + To use this package, you need access to the Yandex translation service via an API key.
 
-  * You can get your key here: [GET API Key](http://api.yandex.ru/key/form.xml?service=trnsl)
+  * You can get your key here: [GET API Key](http://api.yandex.com/key/form.xml?service=trnsl)
 
 
 + With your API key, create a file and in it set your API key in this format:

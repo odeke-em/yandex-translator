@@ -2,6 +2,7 @@
 # coding: utf-8
 from ytrans import YTranslator
 from ytrans import read_key
+from ytrans.utils import to_string
 
 
 def get_args_parser():
@@ -24,7 +25,8 @@ def main():
     args = parser.parse_args()
     show_available_languages = args.available
     if show_available_languages:
-        print("Languages available : {0}".format(", ".join(translator.get_langs())))
+        print("Languages available : {0}".format(
+            ", ".join(translator.get_translation_directions())))
         exit()
 
     lang = args.lang
@@ -42,7 +44,7 @@ def main():
         else:
             lang = "en"
 
-    print(translator.translate(lang=lang, text=text))
+    print(to_string(translator.translate(lang=lang, text=text)))
 
 
 if __name__ == '__main__':

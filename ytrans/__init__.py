@@ -66,8 +66,8 @@ class YTranslator(object):
 
         return list(self.__valid_langs_map.keys())
 
-    def __get_supported_langs_map(self, ui=None):
-        lang_list = self.get_langs(ui=ui)
+    def __get_supported_langs_map(self):
+        lang_list = self.get_translation_directions()
         lang_map = collections.defaultdict(list)
 
         for from_to_str in lang_list:
@@ -158,17 +158,21 @@ class YTranslator(object):
             results = self.translate(lang=lang, text_collection=f.readlines())
         return results
 
-    def get_langs(self, ui=None):
+    def get_translation_directions(self):
         """
         Returns a list of translation directions supported by the service.
 
-        :param str ui: If set, the service's response will contain a
-         list of language codes and corresponding names of languages.
         :return: list of translation directions
         :rtype: list
         """
-        params = dict()
-        if ui is not None:
-            params['ui'] = ui
-        response = self.__call_api('getLangs', **params)
+        response = self.__call_api('getLangs')
         return response["dirs"]
+
+    def get_langs(self, ui):
+        """
+        Returns a dict with languages, like:
+            {language code: language_name}
+
+        :param str ui: language_name language
+        """
+        return self.__call_api('getLangs', ui=ui)['langs']

@@ -6,11 +6,17 @@ try:
     # Py3
     from urllib.parse import urlencode, urljoin
     from urllib.request import urlopen
+
+    def to_string(s):
+        return s
 except ImportError:
     # Py2
     from urlparse import urljoin
     from urllib2 import urlopen
     from urllib import urlencode
+
+    def to_string(s):
+        return unicode(s).encode('utf-8')
 
 if sys.version_info.major >= 3:
     bytefy_kwargs = {'encoding': 'utf-8'}
@@ -32,14 +38,6 @@ def check_existance_and_permissions(path_to_check, permissions=os.R_OK):
 
     elif not os.access(path_to_check, permissions):
         raise IOError(u"Access denied! {0}!".format(path_to_check))
-
-
-def is_valid_file(parser, file_path):
-    try:
-        check_existance_and_permissions(file_path)
-    except IOError as e:
-        parser.error(str(e).encode('utf-8'))
-    return file_path
 
 
 def request(method, data=None):

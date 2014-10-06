@@ -1,6 +1,9 @@
 # coding: utf-8
 import os
 
+from ytrans.exceptions import KeyNotFound
+
+
 # Environment variable, that contains api key file
 KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
 
@@ -32,5 +35,5 @@ def read_key(path_to_key=None):
                 if key.lower() == "key":
                     break
         else:
-            raise Exception(u"API Key not found!")
+            raise KeyNotFound
     return value

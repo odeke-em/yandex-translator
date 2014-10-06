@@ -4,7 +4,6 @@ import stat
 import unittest
 
 import ytrans
-from ytrans.exceptions import KeyNotFound
 
 key = "trnsl.1.1.20140731T144606Z.639639bc480e82b7.7cb97a33d3b2e88fa363e789fe03e2426478c53a"
 
@@ -27,6 +26,7 @@ class YtransTest(unittest.TestCase):
 
     def test_key_not_found(self):
         import tempfile
+        from ytrans.exceptions import KeyNotFound
         with tempfile.NamedTemporaryFile() as f:
             self.assertRaises(KeyNotFound, ytrans.read_key, f.name)
 
@@ -40,7 +40,7 @@ class YtransTest(unittest.TestCase):
         self.assertIn('ru-en', langs)
 
     def test_ytrans_get_langs(self):
-        self.assertEqual(self.translator.get_langs(ui='ru')['ru'], "Русский")
+        self.assertEqual(self.translator.get_langs(ui='ru')['ru'], u"Русский")
 
     def test_ytrans_detect(self):
         self.assertEqual('en', self.translator.detect("Hello, Word!"))

@@ -1,5 +1,7 @@
-*.swp
+*.sw[po]
 *.pyc
+*.pyo
 .idea/
 build/
 *.egg*
+*.coverage

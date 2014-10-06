@@ -22,7 +22,7 @@ setup(
         'ytrans/bin/ytrans-interactive.py'
     ],
     classifiers=[
-        'Development Status :: Alpha',
+        'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',

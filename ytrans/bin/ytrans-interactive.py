@@ -87,7 +87,7 @@ class Console(object):
     _instance = None
 
     def __init__(self):
-        raise Exception("Console class is Singletone!")
+        raise Exception("Console class is Singleton!")
 
     @classmethod
     def get_instance(cls):

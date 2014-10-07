@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-
 import sys
 sys.path.append('..')
 
 from numberRecon import NumberTranslator
-from ytrans import YTranslator
+from ytrans import YTranslator, read_key
 
 
 def main():
-    ytrans = YTranslator()
+    api_key = read_key()
+    ytrans = YTranslator(api_key)
     ntrans = NumberTranslator()
 
     # Let's learn to count in Russian till 100

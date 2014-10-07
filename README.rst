@@ -14,13 +14,9 @@ Unofficial client to `Yandex translator API`_
 Installation
 ------------
 
-* Note: it runs on python versions from 2.7 to 3.X:
+* Note: it runs on python versions >= 2.7:
 
-  ``python setup.py install``  To use the default installation
-
-  ``python2.7 setup.py install`` For a Python2.7 install
-
-  ``python3 setup.py install``  For a Python3 install
+  ``pip install ytrans``
 
 Settings
 --------

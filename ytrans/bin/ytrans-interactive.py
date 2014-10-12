@@ -4,6 +4,7 @@
 import sys
 
 from ytrans import YTranslator, read_key
+from ytrans.utils import to_str, to_unicode
 
 token_trim = lambda token: token.rstrip(" ").lstrip(" ").strip("\n")
 
@@ -108,8 +109,9 @@ class Console(object):
     def set_stdout(self, stdout):
         self._stdout = stdout
 
-    def write(self, *args, **kwargs):
-        return self._stdout.write(*args, **kwargs) and self._stdout.flush()
+    def write(self, text, *args, **kwargs):
+        text = to_str(text)
+        return self._stdout.write(text, *args, **kwargs) and self._stdout.flush()
 
     def write_line(self, text='', *args, **kwargs):
         return self.write("{}\n".format(text), *args, **kwargs)
@@ -119,6 +121,7 @@ class Console(object):
             self.write_line(line)
 
     def write_error(self, message):
+        message = to_str(message)
         self._stderr.write(message)
         self._stderr.flush()
 

@@ -151,7 +151,7 @@ class CommandExecutor(object):
 
     def remove_command(self, name):
         assert name in self._actions,\
-            u"Command {} not found!".format(name)
+            "Command {} not found!".format(name)
         del self._actions[name]
 
     def set_dependences(self, **kwargs):
@@ -169,7 +169,7 @@ class CommandExecutor(object):
     def _get_args(self, dependence):
         for d in dependence:
             assert d in self._dependences,\
-                u"Dependence {} not found!".format(d)
+                "Dependence {} not found!".format(d)
             yield self._dependences[d]
 
 

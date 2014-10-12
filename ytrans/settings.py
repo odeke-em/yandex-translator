@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from ytrans.utils import to_unicode
 
 from ytrans.exceptions import KeyNotFound
 
@@ -10,11 +11,14 @@ KEY_ENVIRON_VARIABLE = "YANDEX_TRANSLATOR_KEY"
 # Translation service URL
 URL = "https://translate.yandex.net/api/v1.5/tr.json/"
 
+# encoding
+ENCODING = 'utf-8'
+
 
 def _get_environ_key_path():
     assert KEY_ENVIRON_VARIABLE in os.environ, (
-        u"Environment variable wasn't set "
-        u"{0}".format(KEY_ENVIRON_VARIABLE))
+        "Environment variable wasn't set "
+        "{0}".format(to_unicode(KEY_ENVIRON_VARIABLE)))
 
     return os.environ[KEY_ENVIRON_VARIABLE]
 

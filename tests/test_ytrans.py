@@ -2,6 +2,7 @@
 import os
 import stat
 import unittest
+from ytrans.utils import to_unicode
 
 import ytrans
 
@@ -40,7 +41,7 @@ class YtransTest(unittest.TestCase):
         self.assertIn('ru-en', langs)
 
     def test_ytrans_get_langs(self):
-        self.assertEqual(self.translator.get_langs(ui='ru')['ru'], u"Русский")
+        self.assertEqual(self.translator.get_langs(ui='ru')['ru'], to_unicode("Русский"))
 
     def test_ytrans_detect(self):
         self.assertEqual('en', self.translator.detect("Hello, Word!"))
@@ -60,15 +61,20 @@ class YtransTest(unittest.TestCase):
     def test_get_supported_primaries(self):
         self.assertIn('en', self.translator.get_supported_primaries())
 
-    def test_translate_plain(self):
+    def test_translate_plain_str(self):
         self.assertEqual("Hello World", self.translator.translate("en", "Привет Мир"))
         self.assertEqual(["Hi", "World"], self.translator.translate("en", text_collection=["Привет", "Мир"]))
+        self.assertRaises(AssertionError, self.translator.translate, "ru", text="One", text_collection=["Two"])
 
-        self.assertRaises(AssertionError, self.translator.translate, "ru", text=u"One", text_collection=["Two"])
+    def test_translate_plain_unicode(self):
+        self.assertEqual("Hello World", self.translator.translate("en", to_unicode("Привет Мир")))
+        self.assertEqual(["Hi", "World"], self.translator.translate("en", text_collection=[
+            to_unicode("Привет"), to_unicode("Мир")]))
+        self.assertRaises(AssertionError, self.translator.translate, "ru", text="One", text_collection=["Two"])
 
     def test_translate_html(self):
-        en_html = "<html><head><title>My Site</title></head></html>"
-        ru_html = u"<html><head><title>Мой Сайт</title></head></html>"
+        en_html = to_unicode("<html><head><title>My Site</title></head></html>")
+        ru_html = to_unicode("<html><head><title>Мой Сайт</title></head></html>")
         self.assertEqual(ru_html, self.translator.translate("ru", text=en_html, format=ytrans.HTML))
 
     def test_translate_from_file(self):
@@ -76,7 +82,7 @@ class YtransTest(unittest.TestCase):
         translated = self.translator.translate_file('ru', file_path)
         with open(file_path) as f:
             lines_count = len(f.readlines())
-        self.assertIn(u"Красивое лучше, чем уродливое. ", translated)
+        self.assertIn(to_unicode("Красивое лучше, чем уродливое. "), translated)
         self.assertEqual(len(translated), lines_count)
 
 

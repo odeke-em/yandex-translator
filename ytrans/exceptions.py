@@ -3,7 +3,7 @@
 
 class KeyNotFound(Exception):
     def __init__(self):
-        super(KeyNotFound, self).__init__(u"API Key not found!")
+        super(KeyNotFound, self).__init__("API Key not found!")
 
 
 class APIException(Exception):
@@ -18,34 +18,34 @@ class APIException(Exception):
 
 
 class InvalidKeyError(APIException):
-    message = u"Invalid API key."
+    message = "Invalid API key."
 
 
 class KeyBlockedError(APIException):
-    message = u"This API key has been blocked."
+    message = "This API key has been blocked."
 
 
 class DailyReqLimitExceededError(APIException):
-    message = (u"You have reached the daily limit"
-               u" for requests (including calls of the translate method).")
+    message = ("You have reached the daily limit"
+               " for requests (including calls of the translate method).")
 
 
 class DailyCharLimitExceededError(APIException):
-    message = (u"You have reached the daily limit for the "
-               u"volume of translated text (including calls"
-               u" of the translate method).")
+    message = ("You have reached the daily limit for the "
+               "volume of translated text (including calls"
+               " of the translate method).")
 
 
 class TextTooLongError(APIException):
-    message = u"The text size exceeds the maximum."
+    message = "The text size exceeds the maximum."
 
 
 class UnprocessableTextError(APIException):
-    message = u"The text could not be translated. "
+    message = "The text could not be translated. "
 
 
 class LangNotSupportedError(APIException):
-    message = u"The specified translation direction is not supported."
+    message = "The specified translation direction is not supported."
 
 
 # code -> exception mapping

@@ -93,7 +93,7 @@ class YTranslator(object):
         :param str method: API method name
         :return: JSON response
         """
-        assert self.__API_KEY, u"API key wasn't read"
+        assert self.__API_KEY, "API key wasn't read"
 
         kwargs['key'] = self.__API_KEY
         joined_per_line = ''
@@ -104,14 +104,17 @@ class YTranslator(object):
             mapped_to_text = map(
                 lambda e: 'text=%s' % (reSpaceCompile.sub('+', e)),
                 text_collection)
-            joined_per_line = '&'.join(mapped_to_text)
+            joined_per_line = utils.to_str('&'.join(mapped_to_text))
 
-        data = utils.urlencode(kwargs).encode('utf-8')
+        data = utils.urlencode(
+            utils.encoded_dict(kwargs)
+        ).encode(settings.ENCODING)
+
         if joined_per_line:
             data += utils.bytes('&' + joined_per_line)
 
         response = utils.request(method, data=data)
-        response = json.loads(response.read().decode("utf-8"))
+        response = json.loads(response.read().decode(settings.ENCODING))
         if response.get("code", OK) != OK:
             throw(response["code"])
 
@@ -144,11 +147,12 @@ class YTranslator(object):
         return_list = text_collection is not None
         text_collection = text_collection or []
         response = self.__call_api("translate", text=text,
-                                   text_collection=text_collection, lang=lang, format=format)
+                                   text_collection=text_collection,
+                                   lang=lang, format=format)
         result = response["text"]
 
         if not return_list:
-            return u" ".join(result)
+            return " ".join(utils.to_unicode(line) for line in result)
 
         return result
 

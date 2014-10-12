@@ -44,7 +44,7 @@ def main():
         else:
             lang = "en"
 
-    print(to_unicode(translator.translate(lang=lang, text=text)))
+    print(translator.translate(lang=lang, text=text))
 
 
 if __name__ == '__main__':

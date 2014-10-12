@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import stat
 import unittest
 from ytrans.utils import to_unicode
 

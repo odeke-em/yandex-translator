@@ -2,7 +2,7 @@
 # coding: utf-8
 from ytrans import YTranslator
 from ytrans import read_key
-from ytrans.utils import to_unicode
+from ytrans.utils import to_str
 
 
 def get_args_parser():
@@ -44,7 +44,7 @@ def main():
         else:
             lang = "en"
 
-    print(translator.translate(lang=lang, text=text))
+    print(to_str(translator.translate(lang=lang, text=text)))
 
 
 if __name__ == '__main__':

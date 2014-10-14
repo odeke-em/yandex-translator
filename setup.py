@@ -7,7 +7,7 @@ with open('README.rst') as f:
 
 setup(
     name='ytrans',
-    version='0.1',
+    version='0.1.1',
     packages=['ytrans'],
     url='https://github.com/rkashapov/yandex-translator',
     license='MIT License',

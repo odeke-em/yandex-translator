@@ -7,9 +7,14 @@
 Yandex translator |Build Status| |Coverage Status|
 ==================================================
 
-Unofficial client to `Yandex translator API`_
+Unofficial python client to `Yandex translator API`_.
 
 .. _Yandex translator API: http://translate.yandex.com/
+
+Javascript client written by `Emmanuel Odeke`_ for node.js you can find `here`_.
+
+.. _here: https://github.com/odeke-em/ytrans.js
+.. _Emmanuel Odeke: https://github.com/odeke-em/
 
 Installation
 ------------
